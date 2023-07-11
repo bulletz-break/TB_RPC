@@ -4,16 +4,17 @@ bool esp_rpc_subscribed = false;
 ThingsBoard tb(esp_rpc_client, ESP_RPC_MAX_MESSAGE_SIZE);
 WiFiClient esp_rpc_client;
 
+void processSharedAttrUpd(const Shared_Attribute_Data &data) {
+    Serial.println(String("Shared Update Event Received"));
+    for(auto i = data.begin(); i != data.end(); ++i) {
+        Serial.println("");
+        Serial.println(String("Key = " + String(i->key().c_str())));
+        Serial.println(String(String("Value = ") + String(i->value().as<const char*>())));
+        Serial.println("");
+    }
+}
+
 RPC_Response process_rpc(const RPC_Data &esp_rpc_data) {
     Serial.println(String("[ESP RPC] Comando recebido"));
-
-    int esp_rpc_wait = esp_rpc_data["wait_seconds"];
-    Serial.println(String(String("[ESP RPC] esp_rpc_wait: ") + String(esp_rpc_wait)));
-
-    RPC_Response("result", "true");
-
-    Serial.println(String("[ESP RPC] Reiniciando ESP..."));
-
-    delay(esp_rpc_wait * 1000);
-    esp_restart();
+    return RPC_Response(Telemetry("result", true));
 }
